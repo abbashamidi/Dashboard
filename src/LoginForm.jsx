@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { login } from "./Services/authService";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -6,7 +7,7 @@ export default function LoginForm() {
   const [error, setError] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
 
-  const verification = () => {
+  const verification = async () => {
     const newErrors = { email: "", password: "" };
     if (!email) {
       newErrors.email = "Email should not be empty";
@@ -23,16 +24,22 @@ export default function LoginForm() {
     setError(newErrors);
 
     if (!newErrors.email && !newErrors.password) {
-      setLoading(true);
-      console.log("verification done");
-      // شبیه‌سازی یه تاخیر برای ارسال به سرور
-      setTimeout(() => {
+      try {
+        setLoading(true);
+        const result = await login(email, password);
+        console.log("Login Success", result);
+        alert("Logged in Successfully");
+      } catch (err) {
+        setError((prev) => ({
+          ...prev,
+          password: "Invalid Email or Password",
+        }));
+      } finally {
         setLoading(false);
-        // اینجا می‌تونی next step بزاری مثل route یا OTP
-      }, 1000);
+      }
     }
   };
-``
+
   return (
     <div className="h-screen flex justify-center items-center">
       <div className="bg-gray-700 w-1/3 h-96 mt-12 rounded-lg border py-2 px-10">
@@ -46,7 +53,7 @@ export default function LoginForm() {
               className="rounded focus:outline-none py-0.5 px-1 w-3/4 text-black"
               onChange={(e) => setEmail(e.target.value)}
               placeholder="example:AbbashamidiCR@gmail.com"
-              autoComplete="ema3/4"
+              autoComplete="email"
             />
             <p className="text-red-500">{error.email}</p>
           </div>
