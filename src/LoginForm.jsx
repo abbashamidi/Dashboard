@@ -1,13 +1,37 @@
+import { useEffect } from "react";
 import { useState } from "react";
 import { login } from "./Services/authService";
 import { useNavigate } from "react-router-dom";
+import Modal from "./Modal";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState(
+    "Logged in successfully! ✅​ "
+  );
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (showModal) {
+      const timer1 = setTimeout(() => {
+        setModalMessage("Transporting to dashboard ...");
+      }, 1500);
+
+      const timer2 = setTimeout(() => {
+        setShowModal(false);
+        navigate("/Dashboard");
+      }, 2500);
+
+      return () => {
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+      };
+    }
+  }, [showModal]);
 
   const verification = async () => {
     const newErrors = { email: "", password: "" };
@@ -31,7 +55,7 @@ export default function LoginForm() {
         setLoading(true);
         const result = await login(email, password);
         localStorage.setItem("token", result.token);
-        navigate("/Dashboard");
+        setShowModal(true);
       } catch (err) {
         setError((prev) => ({
           ...prev,
@@ -90,6 +114,8 @@ export default function LoginForm() {
           </button>
         </div>
       </div>
+
+      <Modal visible={showModal} message={modalMessage} />
     </div>
   );
 }
