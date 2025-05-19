@@ -11,6 +11,7 @@ export default function LoginForm() {
 
   const verification = async () => {
     const newErrors = { email: "", password: "" };
+
     if (!email) {
       newErrors.email = "Email should not be empty";
     } else if (!/^[\w.-]+@[\w.-]+\.\w{2,}$/.test(email)) {
@@ -18,9 +19,9 @@ export default function LoginForm() {
     }
 
     if (!password) {
-      newErrors.password = "Password required";
+      newErrors.password = "Password is required";
     } else if (password.length < 6) {
-      newErrors.password = "Password should be more than 6 characters";
+      newErrors.password = "Password should be at least 6 characters";
     }
 
     setError(newErrors);
@@ -29,8 +30,8 @@ export default function LoginForm() {
       try {
         setLoading(true);
         const result = await login(email, password);
-        localStorage.setItem("token", result.token)
-        navigate("/Dashboard")
+        localStorage.setItem("token", result.token);
+        navigate("/Dashboard");
       } catch (err) {
         setError((prev) => ({
           ...prev,
@@ -43,40 +44,49 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="h-screen flex justify-center items-center">
-      <div className="bg-gray-700 w-1/3 h-96 mt-12 rounded-lg border py-2 px-10">
-        <h1 className="text-center h-14">User Login</h1>
+    <div className="h-screen flex justify-center items-center bg-gray-100">
+      <div className="bg-white w-full max-w-md p-8 rounded-2xl shadow-md border border-gray-200">
+        <h1 className="text-2xl font-semibold text-center text-black mb-6">
+          User Login
+        </h1>
 
-        <div className="flex flex-col gap-5">
-          <div className="flex flex-col justify-start gap-2">
-            <span>Enter your Email:</span>
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-1">
+            <label className="text-sm text-gray-700">Email Address</label>
             <input
-              type="text"
-              className="rounded focus:outline-none py-0.5 px-1 w-3/4 text-black"
+              type="email"
+              value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="example:AbbashamidiCR@gmail.com"
+              className="px-3 py-2 border rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="example@domain.com"
               autoComplete="email"
             />
-            <p className="text-red-500">{error.email}</p>
+            {error.email && (
+              <p className="text-sm text-red-500">{error.email}</p>
+            )}
           </div>
-          <div className="flex flex-col justify-start gap-2">
-            <span>Enter your Password:</span>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-sm text-gray-700">Password</label>
             <input
               type="password"
-              className="rounded focus:outline-none py-0.5 px-1 w-3/4 text-black"
+              value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Your password"
+              className="px-3 py-2 border rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter your password"
               autoComplete="current-password"
             />
-            <p className="text-red-500">{error.password}</p>
+            {error.password && (
+              <p className="text-sm text-red-500">{error.password}</p>
+            )}
           </div>
 
           <button
-            onClick={() => verification()}
+            onClick={verification}
             disabled={loading}
-            className="rounded bg-blue-500 px-1 py-0.5 w-24 disabled:opacity-50"
+            className="bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition disabled:opacity-50"
           >
-            {loading ? "loading" : "submit"}
+            {loading ? "Logging in..." : "Login"}
           </button>
         </div>
       </div>
