@@ -1,26 +1,63 @@
 import ConfirmLogOut from "./ConfirmLogOut";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 export default function Dashboard() {
   const [showModal, setShowModal] = useState(false);
-  const confirmLogOutMessage = "Are you sure you want to log out ?";
   const [onConfirm, setOnConfirm] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const confirmLogOutMessage = "Are you sure you want to log out ?";
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
     if (onConfirm) {
       localStorage.removeItem("token");
       setShowModal(false);
       navigate("/");
-      setOnConfirm(false); // Reset after use
+      setOnConfirm(false);
     }
   }, [onConfirm, navigate]);
 
   return (
-    <div className="bg-zinc-100 min-h-screen flex text-black">
+    <div className="bg-zinc-100 min-h-screen flex-col flex lg:flex-row text-black">
+      <button
+        className="lg:hidden p-2 m-4 rounded-md focus:outline-none"
+        onClick={() => setSidebarOpen((prev) => !prev)}
+        aria-label="Toggle sidebar"
+      >
+        <svg
+          className="w-6 h-6 text-gray-700"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M4 6h16M4 12h16M4 18h16"
+          />
+        </svg>
+      </button>
+
       {/* Sidebar */}
-      <div className="basis-1/3 space-y-10 p-8 border-r border-zinc-300 hidden lg:block">
+      <div
+        className={`
+    fixed top-0 left-0 h-full bg-white border-r border-zinc-300 p-8 space-y-10 shadow-lg
+    transform transition-transform duration-300 ease-in-out z-50
+    ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+    lg:translate-x-0 lg:static lg:basis-1/3 lg:block lg:shadow-none
+  `}
+      >
         <div className="flex items-center gap-4">
           <img
             src="./src/assets/Avatar.png"
@@ -91,13 +128,23 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        ></div>
+      )}
 
       {/* Main Panel */}
-      <div className="flex flex-col lg:items-center lg:justify-start basis-2/3 p-8">
-        <h1 className="text-3xl font-bold border-b pb-6 mb-4">User Panel</h1>
-        <p className="text-xl mb-8">Hi! Welcome dear Abbas Hamidi 👋😃​​</p>
+      <div className="flex flex-col items-start lg:items-center justify-start basis-full lg:basis-2/3 p-4 sm:p-6 lg:p-8 w-full">
+        <h1 className="text-2xl sm:text-3xl font-bold border-b pb-4 sm:pb-6 mb-4">
+          User Panel
+        </h1>
+        <p className="sm:text-lg md:text-xl mb-6 sm:mb-8">
+          Hi! Welcome dear Abbas Hamidi 👋😃​​
+        </p>
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 w-full">
           {[
             {
               icon: "DownloadBox.svg",
@@ -132,7 +179,7 @@ export default function Dashboard() {
           ].map(({ icon, title, desc }) => (
             <div
               key={title}
-              className="bg-zinc-200 rounded-xl p-5 flex flex-col items-center text-center gap-2 hover:shadow-md hover:scale-105 transition-transform min-w-[190px]"
+              className="bg-zinc-200 rounded-xl p-4 sm:p-5 flex flex-col items-center text-center gap-2 hover:shadow-md hover:scale-105 transition-transform w-full"
             >
               <img
                 src={`./src/assets/${icon}`}
