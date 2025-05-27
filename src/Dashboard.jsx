@@ -1,8 +1,26 @@
+import ConfirmLogOut from "./ConfirmLogOut";
+import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+
 export default function Dashboard() {
+  const [showModal, setShowModal] = useState(false);
+  const confirmLogOutMessage = "Are you sure you want to log out ?";
+  const [onConfirm, setOnConfirm] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (onConfirm) {
+      localStorage.removeItem("token");
+      setShowModal(false);
+      navigate("/");
+      setOnConfirm(false); // Reset after use
+    }
+  }, [onConfirm, navigate]);
+
   return (
     <div className="bg-zinc-100 min-h-screen flex text-black">
       {/* Sidebar */}
-      <div className="basis-1/3 space-y-10 p-8 border-r border-zinc-300">
+      <div className="basis-1/3 space-y-10 p-8 border-r border-zinc-300 hidden lg:block">
         <div className="flex items-center gap-4">
           <img
             src="./src/assets/Avatar.png"
@@ -12,7 +30,10 @@ export default function Dashboard() {
           <div className="flex flex-col gap-1">
             <h1 className="text-xl font-bold">Abbas Hamidi</h1>
             <p className="text-sm text-zinc-500">AbbashamidiCR@gmail.com</p>
-            <button className="bg-blue-500 hover:bg-blue-600 transition text-white py-1 px-3 rounded flex items-center gap-2 w-fit">
+            <button
+              onClick={() => setShowModal(true)}
+              className="bg-blue-500 hover:bg-blue-600 transition text-white py-1 px-3 rounded flex items-center gap-2 w-fit"
+            >
               Log out
             </button>
           </div>
@@ -72,11 +93,11 @@ export default function Dashboard() {
       </div>
 
       {/* Main Panel */}
-      <div className="basis-2/3 p-8">
+      <div className="flex flex-col lg:items-center lg:justify-start basis-2/3 p-8">
         <h1 className="text-3xl font-bold border-b pb-6 mb-4">User Panel</h1>
         <p className="text-xl mb-8">Hi! Welcome dear Abbas Hamidi 👋😃​​</p>
 
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-3 gap-4">
           {[
             {
               icon: "DownloadBox.svg",
@@ -111,7 +132,7 @@ export default function Dashboard() {
           ].map(({ icon, title, desc }) => (
             <div
               key={title}
-              className="bg-zinc-200 rounded-xl p-5 flex flex-col items-center text-center gap-2 hover:shadow-md hover:scale-105 transition-transform"
+              className="bg-zinc-200 rounded-xl p-5 flex flex-col items-center text-center gap-2 hover:shadow-md hover:scale-105 transition-transform min-w-[190px]"
             >
               <img
                 src={`./src/assets/${icon}`}
@@ -124,6 +145,13 @@ export default function Dashboard() {
           ))}
         </div>
       </div>
+
+      <ConfirmLogOut
+        isVisible={showModal}
+        setVisible={setShowModal}
+        message={confirmLogOutMessage}
+        setOnConfirm={setOnConfirm}
+      />
     </div>
   );
 }

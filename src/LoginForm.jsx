@@ -76,9 +76,10 @@ export default function LoginForm() {
 
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-1">
-            <label className="text-sm text-gray-700">Email Address</label>
+            <label className="text-sm text-gray-700 font-semibold" htmlFor="email">Email Address</label>
             <input
               type="email"
+              id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="px-3 py-2 border rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -91,9 +92,10 @@ export default function LoginForm() {
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-sm text-gray-700">Password</label>
+            <label className="text-sm text-gray-700 font-semibold" htmlFor="password">Password</label>
             <input
               type="password"
+              id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="px-3 py-2 border rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
