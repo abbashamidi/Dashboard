@@ -7,6 +7,7 @@ export default function Dashboard() {
   const [showModal, setShowModal] = useState(false);
   const [onConfirm, setOnConfirm] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isLoggingOut,setIsLoggingOut] = useState(false)
   const confirmLogOutMessage = "Are you sure you want to log out ?";
   const navigate = useNavigate();
   const location = useLocation();
@@ -19,12 +20,26 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (onConfirm) {
-      localStorage.removeItem("token");
-      setShowModal(false);
-      navigate("/");
-      setOnConfirm(false);
+      setIsLoggingOut(true)
+      setTimeout(() => {
+        localStorage.removeItem("token");
+        setShowModal(false);
+        navigate("/");
+        setOnConfirm(false);
+        setIsLoggingOut(false)
+        
+      }, 2000);
     }
   }, [onConfirm, navigate]);
+
+  useEffect(()=> {
+    if(sidebarOpen) {
+      document.body.classList.add("overflow-hidden")
+    }
+    else {
+      document.body.classList.remove("overflow-hidden")
+    }
+  },[sidebarOpen])
 
   return (
     <div className="bg-zinc-100 min-h-screen flex-col flex lg:flex-row text-black">
@@ -52,7 +67,7 @@ export default function Dashboard() {
       {/* Sidebar */}
       <div
         className={`
-    fixed top-0 left-0 h-full bg-white border-r border-zinc-300 p-8 space-y-10 shadow-lg
+    fixed top-0 left-0 h-[100vh] bg-white border-r border-zinc-300 p-8 space-y-10 shadow-lg
     transform transition-transform duration-300 ease-in-out z-50
     ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
     lg:translate-x-0 lg:static lg:basis-1/3 lg:block lg:shadow-none
@@ -73,6 +88,17 @@ export default function Dashboard() {
             >
               Log out
             </button>
+          </div>
+          <div>
+            {sidebarOpen && (
+              <button
+                className="absolute top-2 right-2 text-2xl text-gray-500 hover:text-red-600 lg:hidden"
+                onClick={() => setSidebarOpen(false)}
+                aria-label="Close sidebar"
+              >
+                &times;
+              </button>
+            )}
           </div>
         </div>
 
@@ -198,6 +224,7 @@ export default function Dashboard() {
         setVisible={setShowModal}
         message={confirmLogOutMessage}
         setOnConfirm={setOnConfirm}
+        isLoggingOut={isLoggingOut}
       />
     </div>
   );
