@@ -1,31 +1,29 @@
-import { useEffect } from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { login } from "./Services/authService";
 import { useNavigate } from "react-router-dom";
-import Modal from "./Modal";
+import Modal from "./SuccessLogInModal";
 
 export default function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState({ email: "", password: "" });
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [formError, setFormError] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState(
-    "Logged in successfully! ✅​ "
+    "Logged in successfully! ✅"
   );
+  const [loginError, setLoginError] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
     if (showModal) {
-      const timer1 = setTimeout(() => {
-        setModalMessage("Transporting to dashboard ...");
-      }, 1500);
-
+      const timer1 = setTimeout(
+        () => setModalMessage("Transporting to dashboard..."),
+        1500
+      );
       const timer2 = setTimeout(() => {
         setShowModal(false);
-        navigate("/Dashboard");
+        navigate("/dashboard");
       }, 2500);
-
       return () => {
         clearTimeout(timer1);
         clearTimeout(timer2);
@@ -33,34 +31,34 @@ export default function LoginForm() {
     }
   }, [showModal]);
 
+  const handleChange = (e) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({ ...prev, [id]: value }));
+  };
+
   const verification = async () => {
-    const newErrors = { email: "", password: "" };
+    const errors = { email: "", password: "" };
+    const { email, password } = formData;
 
-    if (!email) {
-      newErrors.email = "Email should not be empty";
-    } else if (!/^[\w.-]+@[\w.-]+\.\w{2,}$/.test(email)) {
-      newErrors.email = "Email format is not valid";
-    }
+    if (!email) errors.email = "Email should not be empty";
+    else if (!/^[\w.-]+@[\w.-]+\.\w{2,}$/.test(email))
+      errors.email = "Email format is not valid";
 
-    if (!password) {
-      newErrors.password = "Password is required";
-    } else if (password.length < 6) {
-      newErrors.password = "Password should be at least 6 characters";
-    }
+    if (!password) errors.password = "Password is required";
+    else if (password.length < 6)
+      errors.password = "Password should be at least 6 characters";
 
-    setError(newErrors);
+    setFormError(errors);
+    setLoginError("");
 
-    if (!newErrors.email && !newErrors.password) {
+    if (!errors.email && !errors.password) {
       try {
         setLoading(true);
         const result = await login(email, password);
         localStorage.setItem("token", result.token);
         setShowModal(true);
       } catch (err) {
-        setError((prev) => ({
-          ...prev,
-          password: "Invalid Email or Password",
-        }));
+        setLoginError("Invalid email or password.");
       } finally {
         setLoading(false);
       }
@@ -74,47 +72,73 @@ export default function LoginForm() {
           User Login
         </h1>
 
-        <div className="flex flex-col gap-6">
+        {loginError && (
+          <p className="text-red-500 text-center mb-4">{loginError}</p>
+        )}
+
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            verification();
+          }}
+          className="flex flex-col gap-6"
+        >
           <div className="flex flex-col gap-1">
-            <label className="text-sm text-gray-700 font-semibold" htmlFor="email">Email Address</label>
+            <label
+              className="text-sm text-gray-700 font-semibold"
+              htmlFor="email"
+            >
+              Email Address
+            </label>
             <input
               type="email"
               id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={formData.email}
+              onChange={handleChange}
               className="px-3 py-2 border rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="example@domain.com"
               autoComplete="email"
+              aria-describedby="email-error"
             />
-            {error.email && (
-              <p className="text-sm text-red-500">{error.email}</p>
+            {formError.email && (
+              <p id="email-error" className="text-sm text-red-500">
+                {formError.email}
+              </p>
             )}
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-sm text-gray-700 font-semibold" htmlFor="password">Password</label>
+            <label
+              className="text-sm text-gray-700 font-semibold"
+              htmlFor="password"
+            >
+              Password
+            </label>
             <input
               type="password"
               id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={formData.password}
+              onChange={handleChange}
               className="px-3 py-2 border rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter your password"
               autoComplete="current-password"
+              aria-describedby="password-error"
             />
-            {error.password && (
-              <p className="text-sm text-red-500">{error.password}</p>
+            {formError.password && (
+              <p id="password-error" className="text-sm text-red-500">
+                {formError.password}
+              </p>
             )}
           </div>
 
           <button
-            onClick={verification}
-            disabled={loading}
+            type="submit"
+            disabled={loading || showModal}
             className="bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition disabled:opacity-50"
           >
             {loading ? "Logging in..." : "Login"}
           </button>
-        </div>
+        </form>
       </div>
 
       <Modal visible={showModal} message={modalMessage} />
